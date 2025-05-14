@@ -8,7 +8,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate(); // useNavigate for route redirection
+  const navigate = useNavigate();
 
   const toggleAuthMode = () => {
     setIsRegister(!isRegister);
@@ -28,13 +28,13 @@ const Login = () => {
       });
 
       if (response.data.success) {
-        localStorage.setItem('token', response.data.token); // Store the token
-        navigate('/tasks'); // Redirect to tasks page
+        localStorage.setItem('token', response.data.token);
+        navigate('/tasks');
       } else {
-        setError(response.data.message || 'Invalid username or password. Please try again.');
+        setError(response.data.message || 'Invalid username or password.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid username or password. Please try again.');
+      setError(err.response?.data?.message || 'Invalid username or password.');
     }
   };
 
@@ -42,21 +42,27 @@ const Login = () => {
     <div className="auth-container">
       <div className="form-container">
         <h2>{isRegister ? 'Register' : 'Login'}</h2>
-        <form onSubmit={handleFormSubmit}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        <form onSubmit={handleFormSubmit} className="auth-form">
+          <div className="input-group">
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              id="username"
+            />
+            <label htmlFor="username" className={username ? 'filled' : ''}>Username</label>
+          </div>
+          <div className="input-group">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              id="password"
+            />
+            <label htmlFor="password" className={password ? 'filled' : ''}>Password</label>
+          </div>
           <button type="submit">{isRegister ? 'Register' : 'Login'}</button>
           {error && <p className="error">{error}</p>}
           <p onClick={toggleAuthMode} className="toggle-link">
