@@ -20,6 +20,8 @@
 .form-container h2 {
   margin-bottom: 2rem;
   color: #525252;
+  display:flex;
+  justify-content:center;
   font-weight: 600;
 }
 
@@ -89,12 +91,14 @@ button:hover {
 
 .toggle-link {
   margin-top: 1.5rem;
-  color: #464545;
+  display:flex;
+  justify-content:center;
+  color: #525252;
   cursor: pointer;
   font-size: 0.9rem;
 }
 
 .toggle-link:hover {
-  color: #0c0c0c;
+  color: #050404;
   text-decoration: underline;
 }

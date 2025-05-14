@@ -65,9 +65,13 @@ const Login = () => {
           </div>
           <button type="submit">{isRegister ? 'Register' : 'Login'}</button>
           {error && <p className="error">{error}</p>}
-          <p onClick={toggleAuthMode} className="toggle-link">
-            {isRegister ? 'Already have an account? Login' : 'No account? Register'}
-          </p>
+     
+<div className="toggle-link-wrapper">
+  <p onClick={toggleAuthMode} className="toggle-link">
+    {isRegister ? 'Already have an account? Login' : 'No account? Register'}
+  </p>
+</div>
+
         </form>
       </div>
     </div>
