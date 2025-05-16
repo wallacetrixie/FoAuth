@@ -298,6 +298,12 @@ input {
   font-size: 14px;
 }
 
+.input-group input:focus {
+  outline: none;
+  border: 1px solid #4e9af1;
+  box-shadow: 0 0 8px rgba(78, 154, 241, 0.5);
+  transition: 0.3s ease;
+}
 
 .forgot-pass {
     margin-top: 15px;
@@ -311,6 +317,17 @@ input {
     margin-bottom: 20px;
     background: #0f0f0f;
     text-transform: uppercase;
+}
+.forgot-pass {
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.forgot-pass:hover {
+  color: red;
+  text-decoration: underline;
 }
 
 .fb-btn {
@@ -377,5 +394,18 @@ input {
 
   .img__btn {
     margin-top: 20px;
+  }
+}
+@media (max-width: 768px) {
+  .form h2 {
+    font-size: 22px;
+  }
+
+  .input-group input {
+    font-size: 13px;
+  }
+
+  .input-icon {
+    font-size: 12px;
   }
 }

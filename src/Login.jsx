@@ -23,7 +23,8 @@ const Login = () => {
           <FontAwesomeIcon icon={faLock} className="input-icon" />
           <input type="password" placeholder="Password" />
         </label>
-        <p className="forgot-pass">Forgot password?</p>
+       <p className="forgot-pass">Forgot password?</p>
+
         <button type="button" className="submit">Sign In</button>
       </div>
 
