@@ -1,75 +1,60 @@
-import axios from 'axios';
+// App.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './styles/Login.css';
 
 const Login = () => {
-  const [isRegister, setIsRegister] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const toggleAuthMode = () => {
-    setIsRegister(!isRegister);
-    setError('');
-    setUsername('');
-    setPassword('');
-  };
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    const endpoint = isRegister ? '/register' : '/login';
-    try {
-      const response = await axios.post(`http://localhost:5000${endpoint}`, {
-        username,
-        password,
-      });
+  const [isSignUp, setIsSignUp] = useState(false);
 
-      if (response.data.success) {
-        localStorage.setItem('token', response.data.token);
-        navigate('/tasks');
-      } else {
-        setError(response.data.message || 'Invalid username or password.');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid username or password.');
-    }
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
   };
 
   return (
-    <div className="auth-container">
-      <div className="form-container">
-        <h2>{isRegister ? 'Register' : 'Login'}</h2>
-        <form onSubmit={handleFormSubmit} className="auth-form">
-          <div className="input-group">
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              id="username"
-            />
-            <label htmlFor="username" className={username ? 'filled' : ''}>Username</label>
-          </div>
-          <div className="input-group">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              id="password"
-            />
-            <label htmlFor="password" className={password ? 'filled' : ''}>Password</label>
-          </div>
-          <button type="submit">{isRegister ? 'Register' : 'Login'}</button>
-          {error && <p className="error">{error}</p>}
-     
-<div className="toggle-link-wrapper">
-  <p onClick={toggleAuthMode} className="toggle-link">
-    {isRegister ? 'Already have an account? Login' : 'No account? Register'}
-  </p>
-</div>
+    <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
+      <div className="form sign-in">
+        <h2>Welcome</h2>
+        <label>
+          <span>Email</span>
+          <input type="email" />
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" />
+        </label>
+        <p className="forgot-pass">Forgot password?</p>
+        <button type="button" className="submit">Sign In</button>
+      </div>
 
-        </form>
+      <div className="sub-cont">
+        <div className="img">
+          <div className="img__text m--up">
+            <h3>Don't have an account? Please Sign up!</h3>
+          </div>
+          <div className="img__text m--in">
+            <h3>If you already have an account, just sign in.</h3>
+          </div>
+          <div className="img__btn" onClick={toggleMode}>
+            <span className="m--up">Sign Up</span>
+            <span className="m--in">Sign In</span>
+          </div>
+        </div>
+
+        <div className="form sign-up">
+          <h2>Create your Account</h2>
+          <label>
+            <span>Name</span>
+            <input type="text" />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" />
+          </label>
+          <label>
+            <span>Password</span>
+            <input type="password" />
+          </label>
+          <button type="button" className="submit">Sign Up</button>
+        </div>
       </div>
     </div>
   );
