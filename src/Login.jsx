@@ -1,6 +1,8 @@
 // App.js
 import React, { useState } from 'react';
 import './styles/Login.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -13,13 +15,13 @@ const Login = () => {
     <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
       <div className="form sign-in">
         <h2>Welcome</h2>
-        <label>
-          <span>Email</span>
-          <input type="email" />
+        <label className="input-group">
+          <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
+          <input type="email" placeholder="Email" />
         </label>
-        <label>
-          <span>Password</span>
-          <input type="password" />
+        <label className="input-group">
+          <FontAwesomeIcon icon={faLock} className="input-icon" />
+          <input type="password" placeholder="Password" />
         </label>
         <p className="forgot-pass">Forgot password?</p>
         <button type="button" className="submit">Sign In</button>
@@ -41,17 +43,17 @@ const Login = () => {
 
         <div className="form sign-up">
           <h2>Create your Account</h2>
-          <label>
-            <span>Name</span>
-            <input type="text" />
+          <label className="input-group">
+            <FontAwesomeIcon icon={faUser} className="input-icon" />
+            <input type="text" placeholder="Name" />
           </label>
-          <label>
-            <span>Email</span>
-            <input type="email" />
+          <label className="input-group">
+            <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
+            <input type="email" placeholder="Email" />
           </label>
-          <label>
-            <span>Password</span>
-            <input type="password" />
+          <label className="input-group">
+            <FontAwesomeIcon icon={faLock} className="input-icon" />
+            <input type="password" placeholder="Password" />
           </label>
           <button type="button" className="submit">Sign Up</button>
         </div>
