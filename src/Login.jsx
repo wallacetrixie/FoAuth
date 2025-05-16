@@ -1,8 +1,8 @@
+// src/Login.jsx
 import React, { useState } from 'react';
 import './styles/Login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -10,7 +10,6 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
@@ -22,26 +21,41 @@ const Login = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const endpoint = isSignUp ? '/register' : '/login';
+
+    const endpoint = isSignUp
+      ? 'http://localhost:5000/register'
+      : 'http://localhost:5000/login';
+
+    const body = isSignUp
+      ? { username, password }
+      : { username, password };
 
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        credentials: 'include',
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.message || 'Something went wrong.');
+      if (!res.ok || !data.success) {
+        alert(data.message || 'Something went wrong.');
         return;
       }
 
-      // Redirect to dashboard or home on success
-      navigate('/dashboard');
+      if (isSignUp) {
+        alert('Successfully signed up!');
+      } else {
+        alert('Login successful!');
+        // Optional: redirect logic here
+        // e.g., window.location.href = '/dashboard';
+      }
+
     } catch (err) {
-      setError('Server error. Try again later.');
+      console.error('Fetch error:', err);
+      alert('Server error. Please try again later.');
     }
   };
 
@@ -50,13 +64,13 @@ const Login = () => {
       <form className="form sign-in" onSubmit={handleFormSubmit}>
         <h2>Welcome</h2>
         <label className="input-group">
-          <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
+          <FontAwesomeIcon icon={faUser} className="input-icon" />
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Username"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
         </label>
         <label className="input-group">
@@ -69,7 +83,6 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        <p className="forgot-pass">Forgot password?</p>
         {error && <p className="error-msg">{error}</p>}
         <button type="submit" className="submit">Sign In</button>
       </form>
@@ -94,20 +107,10 @@ const Login = () => {
             <FontAwesomeIcon icon={faUser} className="input-icon" />
             <input
               type="text"
-              placeholder="Name"
+              placeholder="Username"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-            />
-          </label>
-          <label className="input-group">
-            <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
-            <input
-              type="email"
-              placeholder="Email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
             />
           </label>
           <label className="input-group">
