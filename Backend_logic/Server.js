@@ -3,6 +3,28 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+const db= require("./condig/db");
+const { json } = require('body-parser');
+const jwt=require('jsonwebtoken');
+const SECRET_KEY="TSUSUUHB6vftTO99U8872G{J8";
+
+app.use(cors());
+app.use(bodyParser.json());
+app.use(
+    session(
+        {
+            secret:SECRET_KEY,
+            resave:false,
+            saveUninitialized:true,
+            cookie:{
+                httpOnly:true,
+                secure:process.env.NODE_ENV==="production",
+                maxAge:3600000,
+            },  
+        }
+    )
+)
 
 
 app.post('/register', (req, res) => {

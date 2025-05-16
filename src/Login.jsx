@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import './styles/Login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,12 +6,11 @@ import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
-  const[username,setUsername]=useState(''); 
-  const[email,setEmail]=useState('');
-  const[password,setPassword]=useState('');
-  const[error,setError]=useState('');
-  const navigate=useNavigate();
-
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
@@ -21,28 +19,60 @@ const Login = () => {
     setEmail('');
     setPassword('');
   };
-  const handleFormSubmit=async(e)=>{
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const endpoint= isSignUp ? '/register' : '/login';
-    
-  }
+    const endpoint = isSignUp ? '/register' : '/login';
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || 'Something went wrong.');
+        return;
+      }
+
+      // Redirect to dashboard or home on success
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Server error. Try again later.');
+    }
+  };
 
   return (
     <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
-      <div className="form sign-in">
+      <form className="form sign-in" onSubmit={handleFormSubmit}>
         <h2>Welcome</h2>
         <label className="input-group">
           <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
-          <input type="email" placeholder="Email" />
+          <input
+            type="email"
+            placeholder="Email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </label>
         <label className="input-group">
           <FontAwesomeIcon icon={faLock} className="input-icon" />
-          <input type="password" placeholder="Password" />
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </label>
-       <p className="forgot-pass">Forgot password?</p>
-
-        <button type="button" className="submit">Sign In</button>
-      </div>
+        <p className="forgot-pass">Forgot password?</p>
+        {error && <p className="error-msg">{error}</p>}
+        <button type="submit" className="submit">Sign In</button>
+      </form>
 
       <div className="sub-cont">
         <div className="img">
@@ -58,22 +88,41 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="form sign-up">
+        <form className="form sign-up" onSubmit={handleFormSubmit}>
           <h2>Create your Account</h2>
           <label className="input-group">
             <FontAwesomeIcon icon={faUser} className="input-icon" />
-            <input type="text" placeholder="Name" />
+            <input
+              type="text"
+              placeholder="Name"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </label>
           <label className="input-group">
             <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
-            <input type="email" placeholder="Email" />
+            <input
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </label>
           <label className="input-group">
             <FontAwesomeIcon icon={faLock} className="input-icon" />
-            <input type="password" placeholder="Password" />
+            <input
+              type="password"
+              placeholder="Password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </label>
-          <button type="button" className="submit">Sign Up</button>
-        </div>
+          {error && <p className="error-msg">{error}</p>}
+          <button type="submit" className="submit">Sign Up</button>
+        </form>
       </div>
     </div>
   );
