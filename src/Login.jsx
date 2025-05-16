@@ -1,15 +1,31 @@
-// App.js
+
 import React, { useState } from 'react';
 import './styles/Login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const[username,setUsername]=useState(''); 
+  const[email,setEmail]=useState('');
+  const[password,setPassword]=useState('');
+  const[error,setError]=useState('');
+  const navigate=useNavigate();
+
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
+    setError('');
+    setUsername('');
+    setEmail('');
+    setPassword('');
   };
+  const handleFormSubmit=async(e)=>{
+    e.preventDefault();
+    const endpoint= isSignUp ? '/register' : '/login';
+    
+  }
 
   return (
     <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
