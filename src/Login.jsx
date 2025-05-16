@@ -9,18 +9,15 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
   const toggleAuthMode = () => {
     setIsRegister(!isRegister);
     setError('');
     setUsername('');
     setPassword('');
   };
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const endpoint = isRegister ? '/register' : '/login';
-
     try {
       const response = await axios.post(`http://localhost:5000${endpoint}`, {
         username,
