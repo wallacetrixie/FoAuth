@@ -80,8 +80,7 @@ app.post('/register',
     }
   }
 );
-
-// 🔐 Login with validation and attempt limit
+//Login with validation and attempt limit
 const MAX_ATTEMPTS = 4;
 const LOCKOUT_TIME = 5 * 60 * 1000; 
 
@@ -148,7 +147,7 @@ app.post('/login',
         }
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
-      // Successful login — reset attempts
+      // Successful login — reset attempt
       req.session.loginAttempts = 0;
       req.session.lockUntil = null;
       req.session.user = user;
@@ -157,9 +156,6 @@ app.post('/login',
     });
   }
 );
-
-
-// Server listen
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
