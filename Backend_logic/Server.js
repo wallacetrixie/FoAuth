@@ -20,7 +20,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Only use true with HTTPS
+    secure: false, 
     httpOnly: true,
     sameSite: 'lax'
   }
@@ -81,7 +81,10 @@ app.post('/register',
   }
 );
 
-// 🔐 Login with validation
+// 🔐 Login with validation and attempt limit
+const MAX_ATTEMPTS = 4;
+const LOCKOUT_TIME = 5 * 60 * 1000; 
+
 app.post('/login',
   [
     body('email')
@@ -97,12 +100,37 @@ app.post('/login',
     }
 
     const { email, password } = req.body;
-    const query = 'SELECT * FROM users WHERE email = ?';
 
+    // Initialize login attempt tracking in session
+    if (!req.session.loginAttempts) {
+      req.session.loginAttempts = 0;
+      req.session.lockUntil = null;
+    }
+
+    const now = Date.now();
+    if (req.session.lockUntil && now < req.session.lockUntil) {
+      const remaining = Math.ceil((req.session.lockUntil - now) / 1000);
+      return res.status(429).json({
+        success: false,
+        message: `Too many failed attempts. Please try again in ${remaining} seconds.`
+      });
+    }
+
+    const query = 'SELECT * FROM users WHERE email = ?';
     db.query(query, [email], async (err, results) => {
-      if (err) return res.status(500).json({ success: false, message: 'Database error' });
+      if (err) {
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
 
       if (results.length === 0) {
+        req.session.loginAttempts += 1;
+        if (req.session.loginAttempts >= MAX_ATTEMPTS) {
+          req.session.lockUntil = now + LOCKOUT_TIME;
+          return res.status(429).json({
+            success: false,
+            message: 'Too many failed attempts. Please try again later.'
+          });
+        }
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
 
@@ -110,14 +138,26 @@ app.post('/login',
       const match = await bcrypt.compare(password, user.password);
 
       if (!match) {
+        req.session.loginAttempts += 1;
+        if (req.session.loginAttempts >= MAX_ATTEMPTS) {
+          req.session.lockUntil = now + LOCKOUT_TIME;
+          return res.status(429).json({
+            success: false,
+            message: 'Too many failed attempts. Please try again later.'
+          });
+        }
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
-
+      // Successful login — reset attempts
+      req.session.loginAttempts = 0;
+      req.session.lockUntil = null;
       req.session.user = user;
+
       return res.status(200).json({ success: true, message: 'Login successful' });
     });
   }
 );
+
 
 // Server listen
 app.listen(port, () => {
