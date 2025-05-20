@@ -37,28 +37,38 @@ const Login = () => {
     setSignupError(false);
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoginMessage('');
-    setLoginError(false);
-    try {
-      const res = await axios.post('http://localhost:5000/login', {
-        email: loginEmail,
-        password: loginPassword,
-      }, { withCredentials: true });
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoginMessage('');
+  setLoginError(false);
+  try {
+    const res = await axios.post('http://localhost:5000/login', {
+      email: loginEmail,
+      password: loginPassword,
+    }, { withCredentials: true });
 
-      if (res.data.success) {
-        setLoginMessage(res.data.message);
-      } else {
-        setLoginError(true);
-        setLoginMessage(res.data.message || 'Login failed');
-      }
-    } catch (err) {
-      console.error(err);
+    if (res.data.success) {
+      setLoginMessage(res.data.message);
+      setLoginError(false);
+      // You might want to redirect or do something after login here
+    } else {
+      setLoginError(true);
+      setLoginMessage(res.data.message || 'Login failed');
+    }
+  } catch (err) {
+    // Check if backend returned a response with a message
+    if (err.response && err.response.data && err.response.data.message) {
+      setLoginError(true);
+      setLoginMessage(err.response.data.message);
+    } else {
+      // Handle other errors (e.g., network error)
       setLoginError(true);
       setLoginMessage('Server error during login.');
     }
-  };
+    console.error(err);
+  }
+};
+
 
   const validateSignup = () => {
     const errors = [];
@@ -79,38 +89,44 @@ const Login = () => {
     return errors;
   };
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    setSignupMessage('');
-    setSignupError(false);
+ const handleSignup = async (e) => {
+  e.preventDefault();
+  setSignupMessage('');
+  setSignupError(false);
 
-    const errors = validateSignup();
-    if (errors.length > 0) {
-      setSignupMessage(errors.join('. '));
+  const errors = validateSignup();
+  if (errors.length > 0) {
+    setSignupMessage(errors.join('. '));
+    setSignupError(true);
+    return;
+  }
+
+  try {
+    const res = await axios.post('http://localhost:5000/register', {
+      username: signupUsername,
+      email: signupEmail,
+      password: signupPassword,
+    }, { withCredentials: true });
+
+    if (res.data.success) {
+      setSignupMessage(res.data.message);
+      setSignupError(false);
+    } else {
+      setSignupMessage(res.data.message || 'Signup failed');
       setSignupError(true);
-      return;
     }
-
-    try {
-      const res = await axios.post('http://localhost:5000/register', {
-        username: signupUsername,
-        email: signupEmail,
-        password: signupPassword,
-      }, { withCredentials: true });
-
-      if (res.data.success) {
-        setSignupMessage(res.data.message);
-        setSignupError(false);
-      } else {
-        setSignupMessage(res.data.message || 'Signup failed');
-        setSignupError(true);
-      }
-    } catch (err) {
-      console.error(err);
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.message) {
+      setSignupMessage(err.response.data.message);
+      setSignupError(true);
+    } else {
       setSignupMessage('Server error during signup.');
       setSignupError(true);
     }
-  };
+    console.error(err);
+  }
+};
+
 
   // Clear messages after 4 seconds
   useEffect(() => {
