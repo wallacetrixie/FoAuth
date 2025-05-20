@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './styles/Login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -19,17 +18,19 @@ const Login = () => {
   const [signupUsername, setSignupUsername] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
   const [signupMessage, setSignupMessage] = useState('');
   const [signupError, setSignupError] = useState(false);
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
-    // Reset all states
+    // Reset all form and message states
     setLoginEmail('');
     setLoginPassword('');
     setSignupUsername('');
     setSignupEmail('');
     setSignupPassword('');
+    setSignupConfirmPassword('');
     setLoginMessage('');
     setLoginError(false);
     setSignupMessage('');
@@ -59,10 +60,37 @@ const Login = () => {
     }
   };
 
+  const validateSignup = () => {
+    const errors = [];
+    if (!signupUsername.trim() || signupUsername.length < 3) {
+      errors.push('Username must be at least 3 characters long');
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(signupEmail)) {
+      errors.push('Invalid email format');
+    }
+    const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordPattern.test(signupPassword)) {
+      errors.push('Password must be at least 8 characters long, contain an uppercase letter and a number');
+    }
+    if (signupPassword !== signupConfirmPassword) {
+      errors.push('Passwords do not match');
+    }
+    return errors;
+  };
+
   const handleSignup = async (e) => {
     e.preventDefault();
     setSignupMessage('');
     setSignupError(false);
+
+    const errors = validateSignup();
+    if (errors.length > 0) {
+      setSignupMessage(errors.join('. '));
+      setSignupError(true);
+      return;
+    }
+
     try {
       const res = await axios.post('http://localhost:5000/register', {
         username: signupUsername,
@@ -72,37 +100,39 @@ const Login = () => {
 
       if (res.data.success) {
         setSignupMessage(res.data.message);
+        setSignupError(false);
       } else {
-        setSignupError(true);
         setSignupMessage(res.data.message || 'Signup failed');
+        setSignupError(true);
       }
     } catch (err) {
       console.error(err);
-      setSignupError(true);
       setSignupMessage('Server error during signup.');
+      setSignupError(true);
     }
   };
-  // Clear login message after 4 seconds
-useEffect(() => {
-  if (loginMessage) {
-    const timer = setTimeout(() => {
-      setLoginMessage('');
-      setLoginError(false);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }
-}, [loginMessage]);
 
-// Clear signup message after 4 seconds
-useEffect(() => {
-  if (signupMessage) {
-    const timer = setTimeout(() => {
-      setSignupMessage('');
-      setSignupError(false);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }
-}, [signupMessage]);
+  // Clear messages after 4 seconds
+  useEffect(() => {
+    const clearTimer = (msgSetter, errSetter) => {
+      const timer = setTimeout(() => {
+        msgSetter('');
+        errSetter(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    };
+    if (loginMessage) return clearTimer(setLoginMessage, setLoginError);
+  }, [loginMessage]);
+
+  useEffect(() => {
+    if (signupMessage) {
+      const timer = setTimeout(() => {
+        setSignupMessage('');
+        setSignupError(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [signupMessage]);
 
   return (
     <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
@@ -181,6 +211,16 @@ useEffect(() => {
               required
               value={signupPassword}
               onChange={(e) => setSignupPassword(e.target.value)}
+            />
+          </label>
+          <label className="input-group">
+            <FontAwesomeIcon icon={faLock} className="input-icon" />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              required
+              value={signupConfirmPassword}
+              onChange={(e) => setSignupConfirmPassword(e.target.value)}
             />
           </label>
           {signupMessage && (
