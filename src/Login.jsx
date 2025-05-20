@@ -1,76 +1,95 @@
-// src/Login.jsx
 import React, { useState } from 'react';
 import './styles/Login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+
+  // Login state
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  // Signup state
+  const [signupUsername, setSignupUsername] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState(false);
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
-    setError('');
-    setUsername('');
-    setEmail('');
-    setPassword('');
+    setMessage('');
+    setError(false);
+    // Reset form fields
+    setLoginEmail('');
+    setLoginPassword('');
+    setSignupUsername('');
+    setSignupEmail('');
+    setSignupPassword('');
   };
 
-  const handleFormSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    const endpoint = isSignUp
-      ? 'http://localhost:5000/register'
-      : 'http://localhost:5000/login';
-
-    const body = isSignUp
-      ? { username, password }
-      : { username, password };
-
+    setMessage('');
+    setError(false);
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(body),
-      });
+      const res = await axios.post('http://localhost:5000/login', {
+        email: loginEmail,
+        password: loginPassword,
+      }, { withCredentials: true });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        alert(data.message || 'Something went wrong.');
-        return;
-      }
-
-      if (isSignUp) {
-        alert('Successfully signed up!');
+      if (res.data.success) {
+        setMessage(res.data.message);
       } else {
-        alert('Login successful!');
-        // Optional: redirect logic here
-        // e.g., window.location.href = '/dashboard';
+        setError(true);
+        setMessage(res.data.message || 'Login failed');
       }
-
     } catch (err) {
-      console.error('Fetch error:', err);
-      alert('Server error. Please try again later.');
+      console.error(err);
+      setError(true);
+      setMessage('Server error during login.');
+    }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    setError(false);
+    try {
+      const res = await axios.post('http://localhost:5000/register', {
+        username: signupUsername,
+        email: signupEmail,
+        password: signupPassword,
+      }, { withCredentials: true });
+
+      if (res.data.success) {
+        setMessage(res.data.message);
+      } else {
+        setError(true);
+        setMessage(res.data.message || 'Signup failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setError(true);
+      setMessage('Server error during signup.');
     }
   };
 
   return (
     <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
-      <form className="form sign-in" onSubmit={handleFormSubmit}>
+      <form className="form sign-in" style={{ display: isSignUp ? 'none' : 'block' }} onSubmit={handleLogin}>
         <h2>Welcome</h2>
         <label className="input-group">
-          <FontAwesomeIcon icon={faUser} className="input-icon" />
+          <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
           <input
-            type="text"
-            placeholder="Username"
+            type="email"
+            placeholder="Email"
             required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={loginEmail}
+            onChange={(e) => setLoginEmail(e.target.value)}
           />
         </label>
         <label className="input-group">
@@ -79,11 +98,11 @@ const Login = () => {
             type="password"
             placeholder="Password"
             required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={loginPassword}
+            onChange={(e) => setLoginPassword(e.target.value)}
           />
         </label>
-        {error && <p className="error-msg">{error}</p>}
+        {message && <p className={error ? 'error-msg' : 'success-msg'}>{message}</p>}
         <button type="submit" className="submit">Sign In</button>
       </form>
 
@@ -101,7 +120,7 @@ const Login = () => {
           </div>
         </div>
 
-        <form className="form sign-up" onSubmit={handleFormSubmit}>
+        <form className="form sign-up" style={{ display: isSignUp ? 'block' : 'none' }} onSubmit={handleSignup}>
           <h2>Create your Account</h2>
           <label className="input-group">
             <FontAwesomeIcon icon={faUser} className="input-icon" />
@@ -109,8 +128,18 @@ const Login = () => {
               type="text"
               placeholder="Username"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={signupUsername}
+              onChange={(e) => setSignupUsername(e.target.value)}
+            />
+          </label>
+          <label className="input-group">
+            <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
+            <input
+              type="email"
+              placeholder="Email"
+              required
+              value={signupEmail}
+              onChange={(e) => setSignupEmail(e.target.value)}
             />
           </label>
           <label className="input-group">
@@ -119,11 +148,11 @@ const Login = () => {
               type="password"
               placeholder="Password"
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={signupPassword}
+              onChange={(e) => setSignupPassword(e.target.value)}
             />
           </label>
-          {error && <p className="error-msg">{error}</p>}
+          {message && <p className={error ? 'error-msg' : 'success-msg'}>{message}</p>}
           <button type="submit" className="submit">Sign Up</button>
         </form>
       </div>
