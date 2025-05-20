@@ -10,31 +10,34 @@ const Login = () => {
   // Login state
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [loginMessage, setLoginMessage] = useState('');
+  const [loginError, setLoginError] = useState(false);
 
   // Signup state
   const [signupUsername, setSignupUsername] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
-
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState(false);
+  const [signupMessage, setSignupMessage] = useState('');
+  const [signupError, setSignupError] = useState(false);
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
-    setMessage('');
-    setError(false);
-    // Reset form fields
+    // Reset all states
     setLoginEmail('');
     setLoginPassword('');
     setSignupUsername('');
     setSignupEmail('');
     setSignupPassword('');
+    setLoginMessage('');
+    setLoginError(false);
+    setSignupMessage('');
+    setSignupError(false);
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError(false);
+    setLoginMessage('');
+    setLoginError(false);
     try {
       const res = await axios.post('http://localhost:5000/login', {
         email: loginEmail,
@@ -42,22 +45,22 @@ const Login = () => {
       }, { withCredentials: true });
 
       if (res.data.success) {
-        setMessage(res.data.message);
+        setLoginMessage(res.data.message);
       } else {
-        setError(true);
-        setMessage(res.data.message || 'Login failed');
+        setLoginError(true);
+        setLoginMessage(res.data.message || 'Login failed');
       }
     } catch (err) {
       console.error(err);
-      setError(true);
-      setMessage('Server error during login.');
+      setLoginError(true);
+      setLoginMessage('Server error during login.');
     }
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError(false);
+    setSignupMessage('');
+    setSignupError(false);
     try {
       const res = await axios.post('http://localhost:5000/register', {
         username: signupUsername,
@@ -66,20 +69,21 @@ const Login = () => {
       }, { withCredentials: true });
 
       if (res.data.success) {
-        setMessage(res.data.message);
+        setSignupMessage(res.data.message);
       } else {
-        setError(true);
-        setMessage(res.data.message || 'Signup failed');
+        setSignupError(true);
+        setSignupMessage(res.data.message || 'Signup failed');
       }
     } catch (err) {
       console.error(err);
-      setError(true);
-      setMessage('Server error during signup.');
+      setSignupError(true);
+      setSignupMessage('Server error during signup.');
     }
   };
 
   return (
     <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
+      {/* Login Form */}
       <form className="form sign-in" style={{ display: isSignUp ? 'none' : 'block' }} onSubmit={handleLogin}>
         <h2>Welcome</h2>
         <label className="input-group">
@@ -102,10 +106,13 @@ const Login = () => {
             onChange={(e) => setLoginPassword(e.target.value)}
           />
         </label>
-        {message && <p className={error ? 'error-msg' : 'success-msg'}>{message}</p>}
+        {loginMessage && (
+          <p className={loginError ? 'error-msg' : 'success-msg'}>{loginMessage}</p>
+        )}
         <button type="submit" className="submit">Sign In</button>
       </form>
 
+      {/* Switch Panel */}
       <div className="sub-cont">
         <div className="img">
           <div className="img__text m--up">
@@ -120,6 +127,7 @@ const Login = () => {
           </div>
         </div>
 
+        {/* Signup Form */}
         <form className="form sign-up" style={{ display: isSignUp ? 'block' : 'none' }} onSubmit={handleSignup}>
           <h2>Create your Account</h2>
           <label className="input-group">
@@ -152,7 +160,9 @@ const Login = () => {
               onChange={(e) => setSignupPassword(e.target.value)}
             />
           </label>
-          {message && <p className={error ? 'error-msg' : 'success-msg'}>{message}</p>}
+          {signupMessage && (
+            <p className={signupError ? 'error-msg' : 'success-msg'}>{signupMessage}</p>
+          )}
           <button type="submit" className="submit">Sign Up</button>
         </form>
       </div>
