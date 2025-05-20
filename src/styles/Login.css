@@ -387,6 +387,19 @@ input {
   background-color: #f8d7da;
   border: 1px solid #f5c2c7;
 }
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.success-msg,
+.error-msg {
+  animation: fadeOut 1s ease-in-out 3s forwards;
+}
 
 /*responsive design*/
 

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import './styles/Login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -80,6 +82,27 @@ const Login = () => {
       setSignupMessage('Server error during signup.');
     }
   };
+  // Clear login message after 4 seconds
+useEffect(() => {
+  if (loginMessage) {
+    const timer = setTimeout(() => {
+      setLoginMessage('');
+      setLoginError(false);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }
+}, [loginMessage]);
+
+// Clear signup message after 4 seconds
+useEffect(() => {
+  if (signupMessage) {
+    const timer = setTimeout(() => {
+      setSignupMessage('');
+      setSignupError(false);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }
+}, [signupMessage]);
 
   return (
     <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
