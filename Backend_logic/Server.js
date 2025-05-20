@@ -3,10 +3,30 @@ import mysql from 'mysql2';
 import cors from 'cors';
 import session from 'express-session';
 import bcrypt from 'bcrypt';
-const saltRounds = 10;
 
+const saltRounds = 10;
 const app = express();
 const port = 5000;
+
+// ✅ Allow the Vite frontend (port 5173)
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
+app.use(express.json());
+
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true only if using HTTPS
+    httpOnly: true,
+    sameSite: 'lax'
+  }
+}));
+
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -22,17 +42,6 @@ db.connect((err) => {
   console.log('MySQL Connected');
 });
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
-app.use(express.json());
-app.use(session({
-  secret: 'your_secret_key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false }
-}));
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -56,8 +65,6 @@ app.post('/register', async (req, res) => {
   }
 });
 
-
-// Login endpoint
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -83,7 +90,6 @@ app.post('/login', (req, res) => {
     return res.status(200).json({ success: true, message: 'Login successful' });
   });
 });
-
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
