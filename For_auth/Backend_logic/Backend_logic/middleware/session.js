@@ -1,5 +1,4 @@
 import session from 'express-session';
-
 const sessionMiddleware = session({
   secret: 'your_secret_key',
   resave: false,

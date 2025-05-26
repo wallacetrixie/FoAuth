@@ -3,7 +3,7 @@ import db from '../db.js';
 import { validationResult } from 'express-validator';
 const saltRounds = 10;
 const MAX_ATTEMPTS = 4;
-const LOCKOUT_TIME = 5 * 60 * 1000; // 5 minutes
+const LOCKOUT_TIME = 5 * 60 * 1000;
 
 export const registerUser = async (req, res) => {
   const errors = validationResult(req);
