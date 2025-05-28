@@ -14,6 +14,13 @@ const Login = () => {
   const [loginMessage, setLoginMessage] = useState('');
   const [loginError, setLoginError] = useState(false);
 
+  // Forgot password state
+  const [showReset, setShowReset] = useState(false);
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
+
   // Signup state
   const [signupUsername, setSignupUsername] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
@@ -35,40 +42,66 @@ const Login = () => {
     setLoginError(false);
     setSignupMessage('');
     setSignupError(false);
+    setShowReset(false);
+    setResetPassword('');
+    setResetConfirmPassword('');
+    setResetError('');
+    setResetSuccess('');
   };
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoginMessage('');
-  setLoginError(false);
-  try {
-    const res = await axios.post('http://localhost:5000/login', {
-      email: loginEmail,
-      password: loginPassword,
-    }, { withCredentials: true });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginMessage('');
+    setLoginError(false);
+    try {
+      const res = await axios.post('http://localhost:5000/login', {
+        email: loginEmail,
+        password: loginPassword,
+      }, { withCredentials: true });
 
-    if (res.data.success) {
-      setLoginMessage(res.data.message);
-      setLoginError(false);
-      // You might want to redirect or do something after login here
-    } else {
-      setLoginError(true);
-      setLoginMessage(res.data.message || 'Login failed');
+      if (res.data.success) {
+        setLoginMessage(res.data.message);
+        setLoginError(false);
+        // You might want to redirect or do something after login here
+      } else {
+        setLoginError(true);
+        setLoginMessage(res.data.message || 'Login failed');
+      }
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setLoginError(true);
+        setLoginMessage(err.response.data.message);
+      } else {
+        setLoginError(true);
+        setLoginMessage('Server error during login.');
+      }
+      console.error(err);
     }
-  } catch (err) {
-    // Check if backend returned a response with a message
-    if (err.response && err.response.data && err.response.data.message) {
-      setLoginError(true);
-      setLoginMessage(err.response.data.message);
-    } else {
-      // Handle other errors (e.g., network error)
-      setLoginError(true);
-      setLoginMessage('Server error during login.');
-    }
-    console.error(err);
-  }
-};
+  };
 
+  // Forgot password handler (frontend only)
+  const handleResetSubmit = (e) => {
+    e.preventDefault();
+    setResetError('');
+    setResetSuccess('');
+    if (!resetPassword || !resetConfirmPassword) {
+      setResetError('Both fields are required');
+      return;
+    }
+    if (resetPassword !== resetConfirmPassword) {
+      setResetError('Passwords do not match');
+      return;
+    }
+    if (resetPassword.length < 8) {
+      setResetError('Password must be at least 8 characters');
+      return;
+    }
+    // TODO: Call backend API to reset password
+    setResetSuccess('Password reset request sent!');
+    setResetPassword('');
+    setResetConfirmPassword('');
+    setTimeout(() => setShowReset(false), 2000);
+  };
 
   const validateSignup = () => {
     const errors = [];
@@ -89,44 +122,43 @@ const handleLogin = async (e) => {
     return errors;
   };
 
- const handleSignup = async (e) => {
-  e.preventDefault();
-  setSignupMessage('');
-  setSignupError(false);
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setSignupMessage('');
+    setSignupError(false);
 
-  const errors = validateSignup();
-  if (errors.length > 0) {
-    setSignupMessage(errors.join('. '));
-    setSignupError(true);
-    return;
-  }
-
-  try {
-    const res = await axios.post('http://localhost:5000/register', {
-      username: signupUsername,
-      email: signupEmail,
-      password: signupPassword,
-    }, { withCredentials: true });
-
-    if (res.data.success) {
-      setSignupMessage(res.data.message);
-      setSignupError(false);
-    } else {
-      setSignupMessage(res.data.message || 'Signup failed');
+    const errors = validateSignup();
+    if (errors.length > 0) {
+      setSignupMessage(errors.join('. '));
       setSignupError(true);
+      return;
     }
-  } catch (err) {
-    if (err.response && err.response.data && err.response.data.message) {
-      setSignupMessage(err.response.data.message);
-      setSignupError(true);
-    } else {
-      setSignupMessage('Server error during signup.');
-      setSignupError(true);
-    }
-    console.error(err);
-  }
-};
 
+    try {
+      const res = await axios.post('http://localhost:5000/register', {
+        username: signupUsername,
+        email: signupEmail,
+        password: signupPassword,
+      }, { withCredentials: true });
+
+      if (res.data.success) {
+        setSignupMessage(res.data.message);
+        setSignupError(false);
+      } else {
+        setSignupMessage(res.data.message || 'Signup failed');
+        setSignupError(true);
+      }
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setSignupMessage(err.response.data.message);
+        setSignupError(true);
+      } else {
+        setSignupMessage('Server error during signup.');
+        setSignupError(true);
+      }
+      console.error(err);
+    }
+  };
 
   // Clear messages after 4 seconds
   useEffect(() => {
@@ -149,6 +181,15 @@ const handleLogin = async (e) => {
       return () => clearTimeout(timer);
     }
   }, [signupMessage]);
+
+  useEffect(() => {
+    if (resetSuccess) {
+      const timer = setTimeout(() => {
+        setResetSuccess('');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [resetSuccess]);
 
   return (
     <div className={`cont ${isSignUp ? 's--signup' : ''}`}>
@@ -179,6 +220,30 @@ const handleLogin = async (e) => {
           <p className={loginError ? 'error-msg' : 'success-msg'}>{loginMessage}</p>
         )}
         <button type="submit" className="submit">Sign In</button>
+        <div className="forgot-pass" onClick={() => setShowReset(!showReset)}>
+          Forgot Password?
+        </div>
+        {showReset && (
+          <form className="reset-dropdown" onSubmit={handleResetSubmit}>
+            <input
+              type="password"
+              placeholder="New Password"
+              value={resetPassword}
+              onChange={e => setResetPassword(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Confirm New Password"
+              value={resetConfirmPassword}
+              onChange={e => setResetConfirmPassword(e.target.value)}
+              required
+            />
+            {resetError && <div className="error-msg">{resetError}</div>}
+            {resetSuccess && <div className="success-msg">{resetSuccess}</div>}
+            <button type="submit" className="submit">Reset Password</button>
+          </form>
+        )}
       </form>
 
       {/* Switch Panel */}

@@ -68,6 +68,3 @@ Backend_logic
     ```
 
 ## Notes
-- Ensure to handle CORS appropriately if accessing the API from a different origin.
-- Modify the session secret in `middleware/session.js` for production use.
-- Follow best practices for password storage and security.
