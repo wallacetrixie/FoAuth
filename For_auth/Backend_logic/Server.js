@@ -15,12 +15,13 @@ app.use(
     credentials: true,
   })
 );
+const isProduction = process.env.NODE_ENV === 'production';
 const sessionMiddleware = session({
-  secret: "AQU7JS-SYU87JS-SYT57JS-SY7JS",
+  secret: process.env.SESSION_SECRET || 'fallback_dev_secret_change_me',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true,
+    secure: isProduction,
     httpOnly: true,
     sameSite: "lax",
     maxAge: 1000 * 60 * 60,

@@ -1,3 +1,8 @@
+node_modules/
+For_auth/Backend_logic/node_modules/
+For_auth/Backend_logic/env
+env
+.env
 # Logs
 logs
 *.log
